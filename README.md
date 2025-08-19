@@ -94,6 +94,33 @@ npm run build
 npm start
 ```
 
+## GMX v2 Price Feeds
+
+GMX v2 provides comprehensive price feeds for assets through multiple mechanisms:
+
+### Price Feed Architecture
+
+**Oracle System**: GMX v2 uses Chainlink's low-latency Data Streams - a pull-based oracle model that aggregates token prices from top exchanges. The system includes:
+- Oracle keepers that pull prices from reference exchanges and sign the data
+- Archive nodes that store signed price information
+- Order keepers that bundle signed oracle prices with trade requests
+
+**Price Aggregation**: Mark prices are aggregated from multiple exchanges to reduce liquidation risks from temporary price wicks. The system provides both minimum and maximum prices to include bid-ask spread information.
+
+### Available APIs for Price Data
+
+REST API Endpoints (available on Arbitrum, Avalanche, Botanix):
+
+1. **Real-time Tickers**: `https://{network}-api.gmxinfra.io/prices/tickers`
+2. **Signed Prices**: `https://{network}-api.gmxinfra.io/signed_prices/latest`
+3. **Historical Candlesticks**: `https://{network}-api.gmxinfra.io/prices/candles`
+   - Supports timeframes: 1m, 5m, 15m, 1h, 4h, 1d
+4. **Token List**: `https://{network}-api.gmxinfra.io/tokens`
+
+**Smart Contracts**: GMX v2 contracts expose oracle interfaces for on-chain price access, with prices stored at 30 decimal precision.
+
+The pricing system is designed for high-frequency trading with reduced slippage through the low-latency oracle integration.
+
 ## License
 
 MIT License - Trade responsibly!
