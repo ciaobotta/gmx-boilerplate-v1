@@ -7,6 +7,7 @@ A simple Next.js application for trading AVAX with leverage on GMX v2 using your
 - 🦊 **MetaMask Integration** - Connect your Avalanche wallet
 - 📈 **Long/Short Positions** - Trade AVAX in both directions
 - ⚡ **Leverage Trading** - Up to 10x leverage using USDC collateral
+- 💰 **Real-time Pricing** - Live AVAX price feed with 30-second updates
 - 🎯 **Simple UI** - Clean interface for position management
 - 🔒 **Secure** - Direct interaction with GMX v2 contracts
 
@@ -60,6 +61,7 @@ A simple Next.js application for trading AVAX with leverage on GMX v2 using your
 🔧 **Technical Details**
 - Built on GMX v2 protocol
 - Uses Avalanche C-Chain
+- Real-time price feed via CoinGecko API with GMX fallback
 - Market orders only (no limit orders in this version)
 - ~0.01 AVAX execution fee per trade
 
@@ -129,6 +131,7 @@ The pricing system is designed for high-frequency trading with reduced slippage 
 - **Leverage Trading**: Execute long/short positions on AVAX with 1x-10x leverage using USDC collateral
 - **GMX v2 Integration**: Direct connection to GMX v2 ExchangeRouter (`TradingInterface.tsx:174`)  
 - **Market Orders**: Create market increase orders through GMX's orderType 2 (`TradingInterface.tsx:166`)
+- **Real-time Pricing**: Live AVAX price feed with automatic 30-second updates (`useAvaxPrice.ts:26-42`)
 - **Wallet Integration**: Web3Modal support for MetaMask, Coinbase Wallet, WalletConnect (`wagmi-provider.tsx:13-19`)
 - **Network Enforcement**: Automatic Avalanche network detection and switching (`TradingInterface.tsx:199-207`)
 
@@ -144,20 +147,20 @@ The pricing system is designed for high-frequency trading with reduced slippage 
 #### Trading Limitations
 - **No Position Management**: Cannot close, modify, or monitor existing positions
 - **No Limit Orders**: Only market orders supported, no stop-loss/take-profit
-- **Hardcoded Pricing**: Uses static $30 AVAX price instead of real oracle data (`TradingInterface.tsx:143`)
+- **~~Hardcoded Pricing~~**: ✅ **FIXED** - Now uses real-time AVAX pricing via CoinGecko/GMX APIs
 - **No Multi-Asset**: Limited to AVAX/USDC market only (`contracts.ts:18`)
 - **No Portfolio View**: Cannot track P&L, position history, or performance
 
 #### Technical Constraints
 - **Single Market**: Hardcoded to one GMX market address
 - **Basic Error Handling**: Limited transaction failure recovery
-- **No Price Feeds**: Missing integration with GMX's oracle system despite documentation
+- **~~No Price Feeds~~**: ✅ **FIXED** - Integrated real-time price feeds with CoinGecko primary + GMX fallback
 - **Static Slippage**: Fixed 0.2% slippage tolerance (`TradingInterface.tsx:144-146`)
 
 ### What the App COULD Do (Enhancement Potential):
 
 #### Immediate Improvements
-- **Oracle Integration**: Implement GMX's Chainlink Data Streams for real-time pricing (`https://avalanche-api.gmxinfra.io/prices/tickers`)
+- **~~Oracle Integration~~**: ✅ **COMPLETED** - Real-time AVAX pricing now implemented with dual API sources
 - **Position Dashboard**: Add position monitoring using GMX Reader contract (`contracts.ts:6`)
 - **Order Management**: Support limit orders, stop-loss, take-profit via orderType variations
 - **Multi-Market**: Extend to other GMX markets (BTC, ETH) using similar contract patterns

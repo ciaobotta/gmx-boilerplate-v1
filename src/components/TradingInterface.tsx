@@ -6,6 +6,7 @@ import { parseEther, parseUnits, formatEther } from 'viem'
 import { avalanche } from 'wagmi/chains'
 import toast from 'react-hot-toast'
 import { GMX_CONTRACTS, TOKENS, AVAX_USDC_MARKET, EXECUTION_FEE } from '@/config/contracts'
+import { useAvaxPrice } from '@/hooks/useAvaxPrice'
 
 const EXCHANGE_ROUTER_ABI = [
   {
@@ -82,6 +83,8 @@ export default function TradingInterface() {
   const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
   
+  const { price: avaxPrice, loading: priceLoading, error: priceError, lastUpdated } = useAvaxPrice()
+  
   const [collateralAmount, setCollateralAmount] = useState('')
   const [leverage, setLeverage] = useState(2)
   const [isLong, setIsLong] = useState(true)
@@ -132,15 +135,15 @@ export default function TradingInterface() {
   }
   
   const handleCreateOrder = async () => {
-    if (!collateralAmount || !address) return
+    if (!collateralAmount || !address || !avaxPrice || priceLoading) return
     
     try {
       const collateralAmountBigInt = parseUnits(collateralAmount, 6) // USDC decimals
       const sizeDeltaUsd = parseUnits(positionSize, 30) // USD amounts use 30 decimals in GMX
       const executionFee = parseEther(EXECUTION_FEE)
       
-      // Get current AVAX price (simplified - in production, use oracle)
-      const currentPrice = parseUnits('30', 30) // $30 as example
+      // Use real AVAX price from GMX oracle
+      const currentPrice = parseUnits(avaxPrice.toString(), 30)
       const acceptablePrice = isLong 
         ? currentPrice * BigInt(1002) / BigInt(1000) // +0.2% slippage for longs
         : currentPrice * BigInt(998) / BigInt(1000)   // -0.2% slippage for shorts
@@ -211,6 +214,30 @@ export default function TradingInterface() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Trade AVAX</h2>
         <w3m-button />
+      </div>
+      
+      {/* AVAX Price Display */}
+      <div className="mb-6 p-4 bg-gray-700 rounded-lg">
+        <div className="flex items-center justify-between">
+          <span className="text-gray-400 text-sm">AVAX Price</span>
+          {priceLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-gray-400 text-sm">Loading...</span>
+            </div>
+          ) : priceError ? (
+            <span className="text-red-400 text-sm">Error: {priceError}</span>
+          ) : (
+            <div className="text-right">
+              <div className="text-xl font-bold text-green-400">${avaxPrice.toFixed(2)}</div>
+              {lastUpdated && (
+                <div className="text-xs text-gray-500">
+                  Updated: {lastUpdated.toLocaleTimeString()}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
       
       {/* Balance Display */}
@@ -320,14 +347,16 @@ export default function TradingInterface() {
         
         <button
           onClick={handleCreateOrder}
-          disabled={!collateralAmount || isCreatingOrder}
+          disabled={!collateralAmount || isCreatingOrder || priceLoading || !avaxPrice}
           className={`w-full py-3 rounded font-medium transition-colors ${
             isLong 
               ? 'bg-green-600 hover:bg-green-700 disabled:bg-gray-600' 
               : 'bg-red-600 hover:bg-red-700 disabled:bg-gray-600'
           } disabled:cursor-not-allowed`}
         >
-          {isCreatingOrder ? 'Creating Order...' : `${isLong ? 'Long' : 'Short'} AVAX`}
+          {isCreatingOrder ? 'Creating Order...' : 
+           priceLoading ? 'Loading Price...' : 
+           `${isLong ? 'Long' : 'Short'} AVAX`}
         </button>
       </div>
       
