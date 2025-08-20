@@ -121,6 +121,61 @@ REST API Endpoints (available on Arbitrum, Avalanche, Botanix):
 
 The pricing system is designed for high-frequency trading with reduced slippage through the low-latency oracle integration.
 
+## Application Capabilities Analysis
+
+### What the App CAN Do:
+
+#### Core Trading Functionality
+- **Leverage Trading**: Execute long/short positions on AVAX with 1x-10x leverage using USDC collateral
+- **GMX v2 Integration**: Direct connection to GMX v2 ExchangeRouter (`TradingInterface.tsx:174`)  
+- **Market Orders**: Create market increase orders through GMX's orderType 2 (`TradingInterface.tsx:166`)
+- **Wallet Integration**: Web3Modal support for MetaMask, Coinbase Wallet, WalletConnect (`wagmi-provider.tsx:13-19`)
+- **Network Enforcement**: Automatic Avalanche network detection and switching (`TradingInterface.tsx:199-207`)
+
+#### User Interface Features  
+- **Real-time Balances**: Live USDC/AVAX balance display (`TradingInterface.tsx:89-98`)
+- **Position Calculator**: Automatic position size calculation based on collateral × leverage (`TradingInterface.tsx:111`)
+- **Execution Fees**: Transparent 0.01 AVAX execution fee display (`contracts.ts:20`)
+- **Connection Status**: Visual GMX v2 connection indicator with contract addresses (`TradingInterface.tsx:228-240`)
+- **Risk Warnings**: Prominent leverage trading risk disclaimers (`TradingInterface.tsx:334-338`)
+
+### What the App CAN'T Do:
+
+#### Trading Limitations
+- **No Position Management**: Cannot close, modify, or monitor existing positions
+- **No Limit Orders**: Only market orders supported, no stop-loss/take-profit
+- **Hardcoded Pricing**: Uses static $30 AVAX price instead of real oracle data (`TradingInterface.tsx:143`)
+- **No Multi-Asset**: Limited to AVAX/USDC market only (`contracts.ts:18`)
+- **No Portfolio View**: Cannot track P&L, position history, or performance
+
+#### Technical Constraints
+- **Single Market**: Hardcoded to one GMX market address
+- **Basic Error Handling**: Limited transaction failure recovery
+- **No Price Feeds**: Missing integration with GMX's oracle system despite documentation
+- **Static Slippage**: Fixed 0.2% slippage tolerance (`TradingInterface.tsx:144-146`)
+
+### What the App COULD Do (Enhancement Potential):
+
+#### Immediate Improvements
+- **Oracle Integration**: Implement GMX's Chainlink Data Streams for real-time pricing (`https://avalanche-api.gmxinfra.io/prices/tickers`)
+- **Position Dashboard**: Add position monitoring using GMX Reader contract (`contracts.ts:6`)
+- **Order Management**: Support limit orders, stop-loss, take-profit via orderType variations
+- **Multi-Market**: Extend to other GMX markets (BTC, ETH) using similar contract patterns
+
+#### Advanced Features  
+- **Portfolio Analytics**: P&L tracking, trading history, performance metrics
+- **Risk Management**: Dynamic position sizing, liquidation warnings, margin requirements
+- **Advanced Orders**: Trailing stops, dollar-cost averaging, grid trading
+- **Cross-Chain**: Expand to Arbitrum GMX markets using same architecture
+
+#### Integration Opportunities
+- **Price Feeds**: Full GMX API integration for historical data and candlesticks
+- **Notification System**: Position alerts, liquidation warnings, order fills
+- **Social Trading**: Copy trading, strategy sharing, leaderboards
+- **DeFi Composability**: Yield farming with unused collateral, automated rebalancing
+
+The app provides a solid foundation for GMX v2 trading with proper contract integration and user experience, but has significant room for feature expansion and sophisticated trading functionality.
+
 ## License
 
 MIT License - Trade responsibly!
